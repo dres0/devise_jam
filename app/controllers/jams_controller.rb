@@ -1,4 +1,5 @@
 class JamsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_jam, only: %i[ show edit update destroy ]
 
   # GET /jams or /jams.json
@@ -21,7 +22,7 @@ class JamsController < ApplicationController
 
   # POST /jams or /jams.json
   def create
-    @jam = Jam.new(jam_params)
+    @jam = Jam.new(jam_params.merge(user: current_user))
 
     respond_to do |format|
       if @jam.save
@@ -37,7 +38,7 @@ class JamsController < ApplicationController
   # PATCH/PUT /jams/1 or /jams/1.json
   def update
     respond_to do |format|
-      if @jam.update(jam_params)
+      if @jam.update(jam_params.merge(user: current_user))
         format.html { redirect_to jam_url(@jam), notice: "Jam was successfully updated." }
         format.json { render :show, status: :ok, location: @jam }
       else
@@ -58,13 +59,14 @@ class JamsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_jam
-      @jam = Jam.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def jam_params
-      params.require(:jam).permit(:name, :user_id)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_jam
+    @jam = Jam.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def jam_params
+    params.require(:jam).permit(:name)
+  end
 end
